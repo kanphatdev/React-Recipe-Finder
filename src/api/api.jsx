@@ -73,3 +73,39 @@ export const fetchFavoritesRecipe = async () => {
     return [];
   }
 };
+// 🔹 api.js
+
+export const fetchRecipeDetail = async (id) => {
+  const URL_DETAIL = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`;
+
+  try {
+    const res = await fetch(URL_DETAIL);
+    const data = await res.json();
+    const meal = data.meals[0];
+
+    const ingredients = [];
+    const measures = [];
+
+    for (let i = 1; i <= 20; i++) {
+      const ingredient = meal[`strIngredient${i}`];
+      const measure = meal[`strMeasure${i}`];
+      if (ingredient && ingredient.trim() !== "") {
+        ingredients.push(ingredient);
+        measures.push(measure);
+      }
+    }
+
+    return {
+      recipe: meal,
+      ingredients,
+      measures,
+    };
+  } catch (error) {
+    console.error("Error fetching recipe detail:", error);
+    return {
+      recipe: null,
+      ingredients: [],
+      measures: [],
+    };
+  }
+};

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { UtensilsCrossed, Loader2, ArrowBigLeft, ArrowLeft } from "lucide-react";
+import { UtensilsCrossed, Loader2, ArrowLeft } from "lucide-react";
+import { fetchRecipeDetail } from "../../api/api";
+
 
 const RecipeDetail = () => {
   const [recipe, setRecipe] = useState(null);
@@ -8,36 +10,15 @@ const RecipeDetail = () => {
   const [measures, setMeasures] = useState([]);
   const { id } = useParams();
 
-  const URL_DETAIL = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=";
-
   useEffect(() => {
-    const fetchRecipeDetail = async () => {
-      try {
-        const res = await fetch(`${URL_DETAIL}${id}`);
-        const data = await res.json();
-        const meal = data.meals[0];
-        setRecipe(meal);
-
-        const tempIngredients = [];
-        const tempMeasures = [];
-
-        for (let i = 1; i <= 20; i++) {
-          const ingredient = meal[`strIngredient${i}`];
-          const measure = meal[`strMeasure${i}`];
-          if (ingredient && ingredient.trim() !== "") {
-            tempIngredients.push(ingredient);
-            tempMeasures.push(measure);
-          }
-        }
-
-        setIngredients(tempIngredients);
-        setMeasures(tempMeasures);
-      } catch (error) {
-        console.error("Error fetching recipe detail:", error);
-      }
+    const loadRecipe = async () => {
+      const { recipe, ingredients, measures } = await fetchRecipeDetail(id);
+      setRecipe(recipe);
+      setIngredients(ingredients);
+      setMeasures(measures);
     };
 
-    fetchRecipeDetail();
+    loadRecipe();
   }, [id]);
 
   if (!recipe) {
@@ -82,7 +63,9 @@ const RecipeDetail = () => {
             ))}
           </ul>
           <div className="card-actions justify-end">
-            <Link to={".."} className="btn btn-primary  btn-dash capitalize"><ArrowLeft/> back</Link>
+            <Link to={".."} className="btn btn-primary btn-dash capitalize">
+              <ArrowLeft className="w-4 h-4 mr-1" /> back
+            </Link>
           </div>
         </div>
       </div>
